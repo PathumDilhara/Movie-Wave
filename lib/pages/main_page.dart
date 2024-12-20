@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movie_wave/models/movie_model.dart';
 import 'package:movie_wave/services/movie_service.dart';
+import 'package:movie_wave/widgets/movie_details_widget.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -89,11 +90,9 @@ class _MainPageState extends State<MainPage> {
                 ),
               );
             }
-            return ListTile(
-              title: Text(
-                _movies[index].title.toString(),
-              ),
-            );
+            final movie = _movies[index];
+
+            return MovieDetailsWidget(movie: movie);
           },
         ),
       ),
