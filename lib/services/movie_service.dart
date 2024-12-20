@@ -42,7 +42,7 @@ class MovieService {
       final response = await http
           .get(Uri.parse("${_baseUrl}now_playing?api_key=$_apiKey&page=$page"));
 
-      if(response.statusCode == 200){
+      if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List<dynamic> result = data["results"];
 
@@ -52,6 +52,29 @@ class MovieService {
       }
     } catch (err) {
       print("Error fetching now playing movies : $err");
+      return [];
+    }
+  }
+
+  // Search movie by title
+  // https://api.themoviedb.org/3/search/movie?query=ice age&api_key=011f78146930034fcaa1c5f6d2f270b5
+  Future<List<MovieModel>> searchMovie(String query) async {
+   final String _searchUrl = "https://api.themoviedb.org/3/search/movie";
+    try {
+      final response = await http
+          .get(Uri.parse("$_searchUrl?query=$query&api_key=$_apiKey"));
+
+      if(response.statusCode == 200){
+        final data = json.decode(response.body);
+        final List<dynamic> results = data["results"];
+
+        return results.map((movie) => MovieModel.fromJson(movie)).toList();
+      } else {
+        throw Exception("Error searching movies");
+      }
+    } catch (err) {
+      print("Error : $err");
+      throw Exception("Failed to searching movies : $err");
       return [];
     }
   }
