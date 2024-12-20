@@ -59,12 +59,12 @@ class MovieService {
   // Search movie by title
   // https://api.themoviedb.org/3/search/movie?query=ice age&api_key=011f78146930034fcaa1c5f6d2f270b5
   Future<List<MovieModel>> searchMovie(String query) async {
-   final String _searchUrl = "https://api.themoviedb.org/3/search/movie";
+    final String _searchUrl = "https://api.themoviedb.org/3/search/movie";
     try {
       final response = await http
           .get(Uri.parse("$_searchUrl?query=$query&api_key=$_apiKey"));
 
-      if(response.statusCode == 200){
+      if (response.statusCode == 200) {
         final data = json.decode(response.body);
         final List<dynamic> results = data["results"];
 
@@ -75,6 +75,67 @@ class MovieService {
     } catch (err) {
       print("Error : $err");
       throw Exception("Failed to searching movies : $err");
+      return [];
+    }
+  }
+
+  // Similar movies
+  Future<List<MovieModel>> fetchSimilarMovies(int movieId) async {
+    try {
+      final response = await http.get(Uri.parse(
+          "https://api.themoviedb.org/3/movie/$movieId/similar?api_key=$_apiKey"));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> results = data["results"];
+
+        return results.map((movie) => MovieModel.fromJson(movie)).toList();
+      } else {
+        throw Exception("Error fetching similar movies");
+      }
+    } catch (err) {
+      print("Failed to fetch similar movies");
+      return [];
+    }
+  }
+
+  // Similar movies
+  Future<List<MovieModel>> fetchRecommendedMovies(int movieId) async {
+    try {
+      final response = await http.get(Uri.parse(
+          "https://api.themoviedb.org/3/movie/$movieId/recommendations?api_key=$_apiKey"));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> results = data["results"];
+
+        return results.map((movie) => MovieModel.fromJson(movie)).toList();
+      } else {
+        throw Exception("Error fetching recommended movies");
+      }
+    } catch (err) {
+      print("Failed to fetch recommended movies");
+      return [];
+    }
+  }
+
+  // Fetch images by movie Id
+  Future<List<String>> fetchImageFromMovieId(int movieId) async {
+    try {
+      final response = await http.get(Uri.parse("https://api.themoviedb.org/3/movie/$movieId/images?api_key=$_apiKey"));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> backdrops = data["backdrops"];
+
+        // Extract file path & return the first 10 images
+        // backdrop is a list, get first 10 elt then do function using map
+        return backdrops.take(10).map((imageData) => "https://image.tmdb.org/t/p/w500/${imageData["file_path"]}").toList();
+      } else {
+        throw Exception("Error fetching images movies");
+      }
+    } catch (err) {
+      print("Failed to fetch images : $err");
       return [];
     }
   }
